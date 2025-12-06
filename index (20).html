@@ -2550,7 +2550,7 @@
     }
 
     /* --- COMPONENT: BANCAS (With Portal Link) --- */
-    function Bancas({ banks, onPlay, onJoin, initialViewMode = 'list', focusBank = null }) {
+    function Bancas({ banks, onPlay, onJoin, initialViewMode = 'list', focusBank = null, onLocationClick }) {
       const [viewMode, setViewMode] = useState(initialViewMode);
       const mapInitializedRef = useRef(false);
       const mapInstanceRef = useRef(null);
@@ -2692,7 +2692,7 @@
                   <div className="flex gap-2">
                     <button onClick={() => onPlay(b)} className="px-5 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 shadow-sm">Jugar</button>
                     <button 
-                      onClick={() => setViewMode('map')} 
+                      onClick={() => onLocationClick ? onLocationClick(b) : setViewMode('map')} 
                       className="px-4 py-2 bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-200 dark:hover:bg-slate-600 transition"
                       title="Ver en mapa"
                     >
@@ -5257,6 +5257,12 @@
         setAssistantResponse(response);
         speakText(response);
       };
+      
+      // Handle bank location click - switch to map view and focus on bank
+      const handleBankLocationClick = (bank) => {
+        setBancasFocusBank(bank);
+        setBancasViewMode('map');
+      };
 
       return (
         <div className={`${theme === 'dark' ? 'dark' : ''} os-${desktopOS}`}>
@@ -5320,6 +5326,18 @@
                   <a onClick={() => { setView('profile'); setIsSidebarMobileOpen(false); }} className={`sidebar-item ${view === 'profile' ? 'active' : ''}`}>
                     <span className="sidebar-item-icon">🎫</span>
                     <span className="sidebar-item-text">Mis Tickets</span>
+                  </a>
+                  <a onClick={() => { setView('how'); setIsSidebarMobileOpen(false); }} className={`sidebar-item ${view === 'how' ? 'active' : ''}`}>
+                    <span className="sidebar-item-icon">📖</span>
+                    <span className="sidebar-item-text">Cómo funciona</span>
+                  </a>
+                  <a onClick={() => { setView('demo'); setIsSidebarMobileOpen(false); }} className={`sidebar-item ${view === 'demo' ? 'active' : ''}`}>
+                    <span className="sidebar-item-icon">🗺️</span>
+                    <span className="sidebar-item-text">Mapa</span>
+                  </a>
+                  <a onClick={() => { setView('rankings'); setIsSidebarMobileOpen(false); }} className={`sidebar-item ${view === 'rankings' ? 'active' : ''}`}>
+                    <span className="sidebar-item-icon">🏅</span>
+                    <span className="sidebar-item-text">Rankings</span>
                   </a>
                   
                   {/* Winning Tickets Indicator */}
@@ -5702,7 +5720,7 @@
               </>
             )}
 
-            {view === "bancas" && <Bancas banks={DEFAULT_BANKS} onPlay={(b) => openPlayModal(b)} onJoin={() => setView("portal")} initialViewMode={bancasViewMode} focusBank={bancasFocusBank} />}
+            {view === "bancas" && <Bancas banks={DEFAULT_BANKS} onPlay={(b) => openPlayModal(b)} onJoin={() => setView("portal")} initialViewMode={bancasViewMode} focusBank={bancasFocusBank} onLocationClick={handleBankLocationClick} />}
             {view === "portal" && <BancaPortal onBack={() => setView("home")} />}
             {view === "profile" && <Profile user={user} ticket={ticket} registeredCards={registeredCards} onManageCards={() => setShowCardManagement(true)} onLogin={() => setShowAuthModal(true)} />}
             {view === "rankings" && <Rankings />}
